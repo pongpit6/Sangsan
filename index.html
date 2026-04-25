@@ -3,119 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Content Calendar Workspace</title>
+    <title>Content Calendar Pro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<div class="workspace-container">
-    <header class="top-nav">
-        <div class="nav-left">
-            <div class="month-selector">
-                <button class="icon-btn" onclick="changeMonth(-1)">&#10094;</button>
+<div class="app-container">
+    <header class="app-header">
+        <div class="header-left">
+            <div class="nav-controls">
+                <button class="nav-arrow" onclick="changeMonth(-1)">&#10094;</button>
                 <h2 id="currentMonthLabel">กำลังโหลด...</h2>
-                <button class="icon-btn" onclick="changeMonth(1)">&#10095;</button>
+                <button class="nav-arrow" onclick="changeMonth(1)">&#10095;</button>
             </div>
-            <button class="btn-secondary" onclick="resetToToday()">กลับไปวันนี้</button>
+            <button class="btn-today" onclick="resetToToday()">วันนี้</button>
         </div>
-        <div class="nav-right">
-            <button class="btn-outline" onclick="openDashboard()">📊 สรุปสถิติ</button>
-            <button class="btn-primary" onclick="openModal()">+ เพิ่มคิวงาน</button>
+        <div class="header-right">
+            <button class="btn-dash" onclick="openDashboard()">📊 สถิติ</button>
+            <button class="btn-add-main" onclick="openModal()">+ เพิ่มคิวงาน</button>
         </div>
     </header>
 
-    <div class="calendar-wrapper">
-        <div class="week-header">
-            <span>อาทิตย์</span><span>จันทร์</span><span>อังคาร</span><span>พุธ</span><span>พฤหัสบดี</span><span>ศุกร์</span><span>เสาร์</span>
+    <div class="calendar-card">
+        <div class="week-days">
+            <span>อา.</span><span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span>ส.</span>
         </div>
         <div id="calendarGrid" class="calendar-grid">
-            <div class="loading-state">
-                <div class="spinner"></div>
-                <p>กำลังซิงค์ข้อมูลกับระบบ...</p>
-            </div>
+            <div class="loader-box"><div class="spinner"></div><p>กำลังซิงค์ข้อมูล...</p></div>
         </div>
     </div>
 </div>
 
-<div id="taskModal" class="modal">
-    <div class="modal-card">
-        <button class="close-btn" onclick="closeModal('taskModal')">&times;</button>
-        <h3 id="modalTitle" class="modal-title">บันทึกคิวงาน</h3>
+<div id="taskModal" class="modal-overlay" onclick="handleOverlayClick(event, 'taskModal')">
+    <div class="modal-content">
+        <button class="modal-close-x" onclick="closeModal('taskModal')">&times;</button>
+        <h3 id="modalTitle" class="modal-header-title">บันทึกคิวงาน</h3>
         <form id="taskForm">
             <input type="hidden" id="editTaskId"> 
-            
-            <div class="form-row">
-                <div class="input-group">
+            <div class="form-grid">
+                <div class="field">
                     <label>วันที่</label>
                     <input type="date" id="postDate" required>
                 </div>
-                <div class="input-group">
+                <div class="field">
+                    <label>เวลา</label>
+                    <input type="time" id="postTime">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="field">
                     <label>ลูกค้า</label>
                     <select id="clientName" required></select>
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="input-group">
+                <div class="field">
                     <label>ประเภทงาน</label>
                     <select id="taskType" required></select>
                 </div>
-                <div class="input-group">
-                    <label>แพลตฟอร์ม</label>
-                    <select id="platform"></select>
-                </div>
             </div>
-            <div class="input-group">
-                <label>ลิงก์ผลงาน (ถ้ามี)</label>
+            <div class="field">
+                <label>แพลตฟอร์ม</label>
+                <select id="platform"></select>
+            </div>
+            <div class="field">
+                <label>ลิงก์ผลงาน (Social Link)</label>
                 <input type="url" id="contentLink" placeholder="https://...">
             </div>
-            <div class="input-group">
-                <label>รายละเอียด / หมายเหตุ</label>
-                <textarea id="notes" rows="3" placeholder="ระบุรายละเอียดเพิ่มเติม..."></textarea>
+            <div class="field">
+                <label>หมายเหตุ / รายละเอียด</label>
+                <textarea id="notes" rows="3" placeholder="เช่น สถานที่ถ่ายทำ, บรีฟงาน..."></textarea>
             </div>
-            <div class="form-actions">
-                <button type="button" class="btn-text" onclick="closeModal('taskModal')">ยกเลิก</button>
-                <button type="submit" id="submitBtn" class="btn-primary">บันทึกข้อมูล</button>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeModal('taskModal')">ยกเลิก</button>
+                <button type="submit" id="submitBtn" class="btn-save-confirm">บันทึกข้อมูล</button>
             </div>
         </form>
     </div>
 </div>
 
-<div id="dayDetailModal" class="modal">
-    <div class="modal-card day-detail-card">
-        <button class="close-btn" onclick="closeModal('dayDetailModal')">&times;</button>
-        <div class="day-detail-header">
-            <h3 id="detailDateTitle">รายละเอียดคิวงาน</h3>
-            <button class="btn-primary-sm" onclick="openAddNewTaskFromDetail()">+ เพิ่มงานวันนี้</button>
+<div id="dayDetailModal" class="modal-overlay" onclick="handleOverlayClick(event, 'dayDetailModal')">
+    <div class="modal-content detail-modal">
+        <button class="modal-close-x" onclick="closeModal('dayDetailModal')">&times;</button>
+        <div class="detail-header">
+            <h3 id="detailDateTitle">รายละเอียด</h3>
+            <button class="btn-add-inline" onclick="openAddNewTaskFromDetail()">+ เพิ่มงานวันนี้</button>
         </div>
-        <div id="detailTaskList" class="detail-task-container">
-            </div>
+        <div id="detailTaskList" class="detail-list-container"></div>
+        <div class="modal-footer">
+            <button class="btn-cancel-wide" onclick="closeModal('dayDetailModal')">ปิดหน้าต่าง</button>
+        </div>
     </div>
 </div>
 
-<div id="dashModal" class="modal">
-    <div class="modal-card dash-card">
-        <button class="close-btn" onclick="closeModal('dashModal')">&times;</button>
-        <h3 class="modal-title" id="dashTitle">ภาพรวมประจำเดือน</h3>
-        <div class="stats-overview">
-            <div class="stat-box">
-                <span>ทั้งหมด</span>
-                <strong id="statTotal">0</strong>
-            </div>
-            <div class="stat-box">
-                <span>คอนเทนต์</span>
-                <strong id="statContent">0</strong>
-            </div>
-            <div class="stat-box">
-                <span>อื่นๆ</span>
-                <strong id="statOther">0</strong>
-            </div>
+<div id="dashModal" class="modal-overlay" onclick="handleOverlayClick(event, 'dashModal')">
+    <div class="modal-content dash-modal">
+        <button class="modal-close-x" onclick="closeModal('dashModal')">&times;</button>
+        <h3>📊 ภาพรวมเดือนนี้</h3>
+        <div class="summary-stats">
+            <div class="stat-pill">รวม <b id="statTotal">0</b></div>
+            <div class="stat-pill">คอนเทนต์ <b id="statContent">0</b></div>
+            <div class="stat-pill">อื่นๆ <b id="statOther">0</b></div>
         </div>
-        <div class="chart-wrapper">
+        <div class="chart-box">
             <canvas id="summaryChart"></canvas>
         </div>
     </div>
