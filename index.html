@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Calendar App</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <header class="main-header">
+        <div class="calendar-nav">
+            <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
+            <h2 id="currentMonthLabel">กำลังโหลด...</h2>
+            <button class="nav-btn" onclick="changeMonth(1)">▶</button>
+        </div>
+        <div class="action-buttons">
+            <button class="btn-summary" onclick="openDashboard()">📊 สรุปภาพรวม</button>
+            <button class="btn-add" onclick="openModal()">+ เพิ่มคิวงาน</button>
+        </div>
+    </header>
+
+    <div class="weekdays-header">
+        <div>อาทิตย์</div><div>จันทร์</div><div>อังคาร</div><div>พุธ</div><div>พฤหัสฯ</div><div>ศุกร์</div><div>เสาร์</div>
+    </div>
+
+    <div id="calendarGrid" class="calendar-grid">
+        <div class="loading-state">กำลังดึงข้อมูลจาก Google Sheets...</div>
+    </div>
+</div>
+
+<div id="taskModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('taskModal')">&times;</span>
+        <h3>บันทึกคิวงานใหม่</h3>
+        <form id="taskForm">
+            <div class="form-group">
+                <label>วันที่</label>
+                <input type="date" id="postDate" required>
+            </div>
+            <div class="form-group">
+                <label>ลูกค้า</label>
+                <select id="clientName" required></select>
+            </div>
+            <div class="form-group">
+                <label>ประเภทงาน</label>
+                <select id="taskType" required></select>
+            </div>
+            <div class="form-group">
+                <label>แพลตฟอร์ม (ถ้ามี)</label>
+                <select id="platform"></select>
+            </div>
+            <div class="form-group">
+                <label>ลิงก์ผลงาน (ถ้ามี)</label>
+                <input type="url" id="contentLink" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label>หมายเหตุ</label>
+                <textarea id="notes" rows="2" placeholder="เช่น นัดกี่โมง / ถ่ายที่ไหน"></textarea>
+            </div>
+            <button type="submit" id="submitBtn" class="btn-primary">บันทึกลงปฏิทิน</button>
+        </form>
+    </div>
+</div>
+
+<div id="dashModal" class="modal">
+    <div class="modal-content dash-content">
+        <span class="close-btn" onclick="closeModal('dashModal')">&times;</span>
+        <h3 id="dashTitle">สรุปภาพรวม</h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <small>งานทั้งหมด</small>
+                <div id="statTotal" class="stat-val">0</div>
+            </div>
+            <div class="stat-card">
+                <small>คอนเทนต์</small>
+                <div id="statContent" class="stat-val">0</div>
+            </div>
+            <div class="stat-card">
+                <small>ออกกอง/อื่นๆ</small>
+                <div id="statOther" class="stat-val">0</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="summaryChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
