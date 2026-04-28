@@ -3,69 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Content Planner v2</title>
+    <title>Content Calendar Workspace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
+<div class="app-wrapper">
     <header class="app-header">
-        <div class="month-nav">
-            <button class="btn-nav" onclick="changeMonth(-1)">&#10094;</button>
-            <h2 id="currentMonthLabel">กำลังโหลด...</h2>
-            <button class="btn-nav" onclick="changeMonth(1)">&#10095;</button>
+        <div class="header-left">
+            <div class="month-controls">
+                <button class="icon-btn" onclick="changeMonth(-1)">◀</button>
+                <h2 id="currentMonthLabel">กำลังโหลดข้อมูล...</h2>
+                <button class="icon-btn" onclick="changeMonth(1)">▶</button>
+            </div>
+            <button class="btn-outline" onclick="resetToToday()">กลับไปวันนี้</button>
         </div>
-        <div class="actions">
+        <div class="header-right">
+            <button class="btn-secondary" onclick="openDashboard()">📊 สรุปสถิติ</button>
             <button class="btn-primary" onclick="openForm()">+ เพิ่มคิวงาน</button>
         </div>
     </header>
 
-    <div class="calendar-card">
-        <div class="week-labels">
-            <div>อาทิตย์</div><div>จันทร์</div><div>อังคาร</div><div>พุธ</div><div>พฤหัสบดี</div><div>ศุกร์</div><div>เสาร์</div>
+    <div class="calendar-container">
+        <div class="week-header">
+            <span>อาทิตย์</span><span>จันทร์</span><span>อังคาร</span><span>พุธ</span><span>พฤหัสบดี</span><span>ศุกร์</span><span>เสาร์</span>
         </div>
-        <div id="calendarGrid" class="calendar-grid"></div>
+        <div id="calendarGrid" class="calendar-grid">
+            <div class="loading-state">กำลังซิงค์ข้อมูล...</div>
+        </div>
     </div>
+</div>
 
-    <div id="dayModal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="close-x" onclick="closeModal('dayModal')">&times;</button>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h2 id="dayTitle" style="margin:0">รายละเอียดงาน</h2>
-                <button class="btn-primary" onclick="openForm()">+ เพิ่มงานวันนี้</button>
+<div id="dayModal" class="modal-overlay">
+    <div class="modal-box day-detail-box">
+        <button class="btn-close-icon" onclick="closeModal('dayModal')">&times;</button>
+        <div class="modal-header">
+            <h2 id="dayTitle">รายละเอียดคิวงาน</h2>
+            <button class="btn-primary-sm" onclick="openAddNewTaskFromDetail()">+ เพิ่มงานวันนี้</button>
+        </div>
+        <div id="detailList" class="detail-list"></div>
+        <div class="modal-footer">
+            <button class="btn-full btn-cancel" onclick="closeModal('dayModal')">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+</div>
+
+<div id="taskModal" class="modal-overlay">
+    <div class="modal-box">
+        <button class="btn-close-icon" onclick="closeModal('taskModal')">&times;</button>
+        <h2 id="formTitle" class="form-title">บันทึกคิวงาน</h2>
+        <form id="taskForm">
+            <input type="hidden" id="editId">
+            <div class="form-row">
+                <div class="input-group"><label>วันที่</label><input type="date" id="postDate" required></div>
+                <div class="input-group"><label>เวลา</label><input type="time" id="postTime"></div>
             </div>
-            <div id="detailList"></div>
-            <div class="modal-footer">
-                <button class="btn-full btn-gray" onclick="closeModal('dayModal')">ปิดหน้าต่าง</button>
+            <div class="form-row">
+                <div class="input-group"><label>ลูกค้า</label><select id="clientName" required></select></div>
+                <div class="input-group"><label>ประเภทงาน</label><select id="taskType" required></select></div>
             </div>
-        </div>
+            <div class="input-group"><label>แพลตฟอร์ม</label><select id="platform"></select></div>
+            <div class="input-group"><label>ลิงก์ผลงาน (ถ้ามี)</label><input type="url" id="contentLink" placeholder="https://..."></div>
+            <div class="input-group"><label>รายละเอียด / หมายเหตุ</label><textarea id="notes" rows="3"></textarea></div>
+            
+            <div class="modal-footer form-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('taskModal')">ยกเลิก</button>
+                <button type="submit" id="saveBtn" class="btn-primary">บันทึกข้อมูล</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <div id="taskModal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="close-x" onclick="closeModal('taskModal')">&times;</button>
-            <h2 id="formTitle">บันทึกงาน</h2>
-            <form id="taskForm">
-                <input type="hidden" id="editId">
-                <div class="form-grid">
-                    <div class="field"><label>วันที่</label><input type="date" id="postDate" required></div>
-                    <div class="field"><label>เวลา</label><input type="time" id="postTime"></div>
-                </div>
-                <div class="form-grid">
-                    <div class="field"><label>ลูกค้า</label><select id="clientName" required></select></div>
-                    <div class="field"><label>ประเภทงาน</label><select id="taskType" required></select></div>
-                </div>
-                <div class="field"><label>แพลตฟอร์ม</label><select id="platform"></select></div>
-                <div class="field"><label>ลิงก์งาน</label><input type="url" id="contentLink" placeholder="https://..."></div>
-                <div class="field"><label>หมายเหตุ</label><textarea id="notes" rows="3"></textarea></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-full btn-gray" onclick="closeModal('taskModal')">ยกเลิก</button>
-                    <button type="submit" id="saveBtn" class="btn-full btn-primary">บันทึกข้อมูล</button>
-                </div>
-            </form>
+<div id="dashModal" class="modal-overlay">
+    <div class="modal-box dash-box">
+        <button class="btn-close-icon" onclick="closeModal('dashModal')">&times;</button>
+        <h2 class="form-title">ภาพรวมประจำเดือน</h2>
+        <div class="stats-grid">
+            <div class="stat-card"><span>ทั้งหมด</span><strong id="statTotal">0</strong></div>
+            <div class="stat-card"><span>คอนเทนต์</span><strong id="statContent">0</strong></div>
+            <div class="stat-card"><span>อื่นๆ</span><strong id="statOther">0</strong></div>
         </div>
+        <div class="chart-container"><canvas id="summaryChart"></canvas></div>
     </div>
+</div>
 
-    <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
